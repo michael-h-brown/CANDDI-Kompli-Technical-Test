@@ -34,7 +34,7 @@ HTTPS.get('https://www.canddi.com/', (response) => {
 
 function parseHTML(data) {
 
-	knwlInstance.register('phones', require('knwl.js/default_plugins/phones.js'));
+	knwlInstance.register('ukPhones', require('./ukPhone.js'));
 
 	//Get individual lines of the HTML
 	let dataLines = splitData(data.html());
@@ -44,13 +44,15 @@ function parseHTML(data) {
 		//Hard coded string changes that enable phone numbers
 		//to be found
 		dataLines[i] = dataLines[i].replace(/\s/g, '');
-		let tempLine = dataLines[i].replace('+44', ' 0');
-		tempLine = tempLine.replace('<', ' ');
-		tempLine = tempLine.replace('>', ' ');
+		//let tempLine = dataLines[i].replace('+44', ' 0');
+		let tempLine = dataLines[i].replace(/"/g, ' " ');
+		tempLine = tempLine.replace(/:/g, ' : ');
+
+		//console.log(tempLine);
 
 		//Find phone numbers on this line
 		knwlInstance.init(tempLine);
-		let numbers = knwlInstance.get('phones');
+		let numbers = knwlInstance.get('ukPhones');
 
 		//Print first phone number found in the HTML
 		//In this case the a tag in the header of the page
