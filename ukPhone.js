@@ -10,7 +10,6 @@ function Phones(knwl) {
     // IMPORTANT: This function makes the assumption that there is always 3 digits in an area code
     this.formatPhoneNumber = function(number) {
 
-      console.log(number);
         var formattedNumber = number.slice(number.length - 6, number.length);
     
         formattedNumber = number.slice(number.length - (phones.areaCodeLength + 6), number.length - 6) + " " +
