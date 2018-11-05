@@ -8,7 +8,8 @@ let knwlInstance = new Knwl('english');
 let loadedData;
 let rawData = '';
 
-let requestURL = 'tim@canddi.com';
+const defaultURL = 'tim@canddi.com';
+let requestURL = defaultURL;
 let emailProvided = false;
 
 if (process.argv.length == 3) {
@@ -31,7 +32,7 @@ do {
 		requestURL = 'https://www.' + emails[0].address.split('@')[1] + '/';
 		emailFound = true;
 	} else if (emailProvided) {
-		requestURL = 'tim@canddi.com';
+		requestURL = defaultURL;
 		console.log('No email address detected, defaulting to tim@canddi.com');
 	} else {
 		throw new Error('There was an issue using the default email address...');
