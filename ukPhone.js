@@ -1,4 +1,13 @@
 /* Phone Number Parser */
+
+
+/*
+NOTE: THIS PLUGIN IS A SLIGHTLY TWEAKED
+COPY OF THE DEFAULT PHONES.JS PLUGIN
+THAT MAKES IT ABLE TO PICK UP UK PHONE
+NUMBERS
+*/
+
 function Phones(knwl) {
     
     this.languages = {
@@ -7,7 +16,7 @@ function Phones(knwl) {
 
     this.areaCodeLength = 4; // Hard code this assumption for now
     
-    // IMPORTANT: This function makes the assumption that there is always 3 digits in an area code
+    // IMPORTANT: This function makes the assumption that there is always 4 digits in an area code
     this.formatPhoneNumber = function(number) {
 
         var formattedNumber = number.slice(number.length - 6, number.length);
@@ -27,7 +36,14 @@ function Phones(knwl) {
         
         var words = knwl.words.get('words');
         var currWord = null;
-        
+
+        words = words.join(' ');
+        for (var i = 0; i < 3; i++) {
+          words = words.replace(/(\d+) (\d)/, '$1$2');
+        }
+        words = words.split(' ');
+ 
+
         /* Phone Numbers can be as little as 7 digits per word,
            and as large as 13 if the word contains country code & area code & phone number
            note: this applies to North American area codes assuming 3 digits
@@ -43,6 +59,7 @@ function Phones(knwl) {
             currWord = knwl.tasks.removeCharacters(["-", "(", ")"], words[i]);
     
             if (phoneRegexp.test(currWord)) {
+
                 /* At this point the word is thought to be a phone number.
                    If the current word is only of length 7 it's required that the previous word
                    is the area code, assuming there is a previous word. */
