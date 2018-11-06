@@ -11,50 +11,7 @@ let rawData = '';
 const defaultURL = 'tim@canddi.com';
 let requestURL = defaultURL;
 let emailProvided = false;
-
-if (process.argv.length == 3) {
-	requestURL = process.argv[2];
-	emailProvided = true;
-} else if (process.argv.length == 2) {
-	console.log('No email address given as argument, defaulting to: tim@canddi.com');
-} else {
-	console.log('Too many arguments supplied, using: ' + process.argv[2]);
-}
-
 let emailFound = false;
-
-//Checks argument as valid email address
-//if not then use default
-do {
-	knwlInstance.init(requestURL);
-	let emails = knwlInstance.get('emails');
-	if(emails.length > 0) {
-		requestURL = 'https://www.' + emails[0].address.split('@')[1] + '/';
-		emailFound = true;
-	} else if (emailProvided) {
-		requestURL = defaultURL;
-		console.log('No email address detected, defaulting to tim@canddi.com');
-	} else {
-		throw new Error('There was an issue using the default email address...');
-	}
-}while (emailFound == false);
-
-//Get HTML for the webpage
-HTTPS.get(requestURL, (response) => {
-	response.on('data', (chunk) => {
-		rawData += chunk;
-	});
-
-	response.on('end', () => {
-		loadedData = Cheerio.load(rawData);
-		//Send to be analysed for data
-		parseHTML(loadedData);
-	});
-
-	response.on('error', (err) => {
-		console.log('Error: ' + err.message);
-	});
-});
 
 function parseHTML(data) {
 
@@ -206,3 +163,45 @@ function cleanData(data) {
 
 	return cleanedData;
 }
+
+if (process.argv.length == 3) {
+	requestURL = process.argv[2];
+	emailProvided = true;
+} else if (process.argv.length == 2) {
+	console.log('No email address given as argument, defaulting to: tim@canddi.com');
+} else {
+	console.log('Too many arguments supplied, using: ' + process.argv[2]);
+}
+
+//Checks argument as valid email address
+//if not then use default
+do {
+	knwlInstance.init(requestURL);
+	let emails = knwlInstance.get('emails');
+	if(emails.length > 0) {
+		requestURL = 'https://www.' + emails[0].address.split('@')[1] + '/';
+		emailFound = true;
+	} else if (emailProvided) {
+		requestURL = defaultURL;
+		console.log('No email address detected, defaulting to tim@canddi.com');
+	} else {
+		throw new Error('There was an issue using the default email address...');
+	}
+}while (emailFound == false);
+
+//Get HTML for the webpage
+HTTPS.get(requestURL, (response) => {
+	response.on('data', (chunk) => {
+		rawData += chunk;
+	});
+
+	response.on('end', () => {
+		loadedData = Cheerio.load(rawData);
+		//Send to be analysed for data
+		parseHTML(loadedData);
+	});
+
+	response.on('error', (err) => {
+		console.log('Error: ' + err.message);
+	});
+});
