@@ -8,10 +8,9 @@ let knwlInstance = new Knwl('english');
 let loadedData;
 let rawData = '';
 
-const defaultURL = 'tim@canddi.com';
-let requestURL = defaultURL;
-let emailProvided = false;
+let requestURL = '';
 let emailFound = false;
+let argumentsFound = false;
 
 function parseHTML(data) {
 
@@ -164,44 +163,46 @@ function cleanData(data) {
 	return cleanedData;
 }
 
+//Check Arguments provided eg. {node, app.js, tim@canddi.com}
 if (process.argv.length == 3) {
 	requestURL = process.argv[2];
-	emailProvided = true;
+	argumentsFound = true;
 } else if (process.argv.length == 2) {
-	console.log('No email address given as argument, defaulting to: tim@canddi.com');
+	console.log('\nNo email address given as argument.\nUsage: node app.js <email_address>');
 } else {
-	console.log('Too many arguments supplied, using: ' + process.argv[2]);
+	console.log('\nToo many arguments supplied.\nusing: ' + process.argv[2]);
+	requestURL = process.argv[2];
+	argumentsFound = true;
 }
 
 //Checks argument as valid email address
 //if not then use default
-do {
+if (argumentsFound) {
 	knwlInstance.init(requestURL);
 	let emails = knwlInstance.get('emails');
 	if(emails.length > 0) {
 		requestURL = 'https://www.' + emails[0].address.split('@')[1] + '/';
 		emailFound = true;
-	} else if (emailProvided) {
-		requestURL = defaultURL;
-		console.log('No email address detected, defaulting to tim@canddi.com');
 	} else {
-		throw new Error('There was an issue using the default email address...');
+		console.log('\nNo email address detected.\nExample Email Address: tim@canddi.com');
 	}
-}while (emailFound == false);
+}
 
-//Get HTML for the webpage
-HTTPS.get(requestURL, (response) => {
-	response.on('data', (chunk) => {
-		rawData += chunk;
-	});
+if (emailFound) {
+	//Get HTML for the webpage
+	HTTPS.get(requestURL, (response) => {
+		response.on('data', (chunk) => {
+			rawData += chunk;
+		});
 
-	response.on('end', () => {
-		loadedData = Cheerio.load(rawData);
-		//Send to be analysed for data
-		parseHTML(loadedData);
-	});
+		response.on('end', () => {
+			loadedData = Cheerio.load(rawData);
+			//Send to be analysed for data
+			parseHTML(loadedData);
+		});
 
-	response.on('error', (err) => {
-		console.log('Error: ' + err.message);
+		response.on('error', (err) => {
+			console.log('Error: ' + err.message);
+		});
 	});
-});
+}
